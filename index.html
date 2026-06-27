@@ -247,7 +247,10 @@
       reelsEl.appendChild(wrap);
       var obj={reel:reel,kind:reel.kind,strip:wrap.querySelector(".strip"),
                lock:wrap.querySelector(".lock"),sel:wrap.querySelector("select")};
-      if(obj.lock){ obj.lock.addEventListener("change",function(){obj.sel.disabled=!obj.lock.checked;}); }
+      if(obj.lock){ obj.lock.addEventListener("change",function(){
+        obj.sel.disabled=!obj.lock.checked;
+        if(obj.lock.checked) ensureLockOptions();
+      }); }
       reelObjs.push(obj);
     });
     cuisineSel=reelObjs[1].sel; lockCuisine=reelObjs[1].lock;
@@ -447,6 +450,30 @@
     if(vals.indexOf(cur)>=0) sel.value=cur;
   }
 
+  // Lock dropdowns are populated from the restaurant pool, which is otherwise
+  // only fetched on the first spin. If someone flips a lock before spinning,
+  // the <select> is empty and renders as "No Options". Pull the pool now so the
+  // menu has real cuisines/prices to choose from.
+  var lockLoad=null;
+  function ensureLockOptions(){
+    if(pool) return Promise.resolve();          // already loaded for this place
+    if(lockLoad) return lockLoad;               // a load is already in flight
+    [cuisineSel,priceSel].forEach(function(sel){
+      if(sel && !sel.options.length) sel.innerHTML='<option disabled>loading…</option>';
+    });
+    function clearLoading(){
+      [cuisineSel,priceSel].forEach(function(sel){
+        if(sel && sel.options.length===1 && sel.options[0].disabled && sel.options[0].text==="loading…") sel.innerHTML="";
+      });
+    }
+    lockLoad=getPool(false).catch(function(e){ handleError(e); clearLoading(); })
+      .then(function(){ lockLoad=null; });
+    return lockLoad;
+  }
+  function reloadLockOptionsIfActive(){
+    if((lockCuisine&&lockCuisine.checked)||(lockPrice&&lockPrice.checked)) ensureLockOptions();
+  }
+
   // ---------- spin ----------
   var spinning=false;
   function spin(){
@@ -536,6 +563,7 @@
       state.mode=btn.dataset.mode; localStorage.setItem(LS.mode,state.mode);
       placeInput.style.display = state.mode==="place"?"":"none";
       sessionCenter=null; pool=null; poolKey=null;
+      reloadLockOptionsIfActive();
       if(state.mode==="place") placeInput.focus();
     });
   });
@@ -546,9 +574,9 @@
     on.classList.add("on"); state.mode=on.dataset.mode;
     placeInput.style.display = state.mode==="place"?"":"none";
   })();
-  placeInput.addEventListener("change",function(){ localStorage.setItem(LS.place,placeInput.value.trim()); sessionCenter=null;pool=null;poolKey=null; });
+  placeInput.addEventListener("change",function(){ localStorage.setItem(LS.place,placeInput.value.trim()); sessionCenter=null;pool=null;poolKey=null; reloadLockOptionsIfActive(); });
   placeInput.addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); spin(); } });
-  radiusSel.addEventListener("change",function(){ state.radius=radiusSel.value; localStorage.setItem(LS.radius,state.radius); pool=null;poolKey=null; });
+  radiusSel.addEventListener("change",function(){ state.radius=radiusSel.value; localStorage.setItem(LS.radius,state.radius); pool=null;poolKey=null; reloadLockOptionsIfActive(); });
 
   spinBtn.addEventListener("click",spin);
   $("respinBtn").addEventListener("click",function(e){e.preventDefault();spin();});
