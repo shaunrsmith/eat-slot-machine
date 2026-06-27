@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#1a0f2e" />
-<title>Meet Me Tonight in Atlantic City 🎰</title>
+<title>Dinner Jackpot 🎰 — Spin for Where to Eat</title>
 <style>
   :root{
     --bg:#160c26; --bg2:#241138; --gold:#ffd35c; --gold2:#f5a623;
@@ -109,8 +109,8 @@
 </style>
 </head>
 <body>
-  <h1>🎰 Meet Me Tonight<br>in Atlantic City</h1>
-  <p class="sub">Pull the lever and let the city pick your table. Defaults to <b>Atlantic City</b> — or choose another city or use your location. Flip a 🔒 lock to pin a cuisine or price.</p>
+  <h1>🎰 Dinner Jackpot</h1>
+  <p class="sub">Pull the lever and hit the jackpot — a real restaurant, picked for you. Starts in <b>Atlantic City</b>; switch cities or use your location. Flip a 🔒 lock to pin a cuisine or price.</p>
 
   <div class="controls">
     <div class="seg" id="modeSeg">
@@ -498,7 +498,7 @@
     var p=currentPick; if(!p) return "";
     var city=(currentCenter&&currentCenter.label)||"tonight";
     var emoji=emojiFor(p.cuisine);
-    var line="🎰 Meet me tonight at "+p.name+" "+emoji;
+    var line="🎰 Dinner jackpot! Meet me tonight at "+p.name+" "+emoji;
     var bits=[]; if(p.cuisine) bits.push(p.cuisine); if(p.priceStr) bits.push(p.priceStr);
     if(p.rating) bits.push("★"+p.rating.toFixed(1));
     if(bits.length) line+=" — "+bits.join(" · ");
@@ -509,7 +509,7 @@
     if(!currentPick) return;
     var url=$("mapsLink").href, line=shareText(), full=line+"\n"+url;
     if(navigator.share){
-      navigator.share({title:"Meet Me Tonight in Atlantic City", text:line, url:url})
+      navigator.share({title:"Dinner Jackpot", text:line, url:url})
         .then(function(){ setStatus("Shared! See you there 🍴"); })
         .catch(function(){});
     } else if(navigator.clipboard && navigator.clipboard.writeText){
