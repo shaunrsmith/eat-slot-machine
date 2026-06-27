@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#1a0f2e" />
-<title>Where Should We Eat? — Slot Machine</title>
+<title>Meet Me Tonight in Atlantic City 🎰</title>
 <style>
   :root{
     --bg:#160c26; --bg2:#241138; --gold:#ffd35c; --gold2:#f5a623;
@@ -102,21 +102,22 @@
   .result a,.result button.again{display:inline-block;text-decoration:none;font-weight:700;border:none;cursor:pointer;
     background:var(--green);color:#04231a;padding:11px 18px;border-radius:12px;font-size:.92rem}
   .result a.alt,.result button.again{background:transparent;color:var(--gold);border:1px solid var(--gold)}
+  .result button.share{background:var(--green);color:#04231a;border:none;flex-basis:100%;font-size:1rem;padding:13px 18px}
 
   footer{opacity:.45;font-size:.78rem;margin-top:26px;text-align:center}
 
 </style>
 </head>
 <body>
-  <h1>🎰 Where Should We Eat?</h1>
-  <p class="sub">Spin for a <b>real restaurant near you</b>. Flip a 🔒 lock to pin a cuisine or price, then spin to pick a random spot that fits.</p>
+  <h1>🎰 Meet Me Tonight<br>in Atlantic City</h1>
+  <p class="sub">Pull the lever and let the city pick your table. Defaults to <b>Atlantic City</b> — or choose another city or use your location. Flip a 🔒 lock to pin a cuisine or price.</p>
 
   <div class="controls">
     <div class="seg" id="modeSeg">
-      <button data-mode="near" class="on">📍 Near me</button>
-      <button data-mode="place">🔎 A place</button>
+      <button data-mode="place" class="on">🌆 Pick a city</button>
+      <button data-mode="near">📍 Near me</button>
     </div>
-    <input id="placeInput" placeholder="City, neighborhood, or zip…" style="display:none" />
+    <input id="placeInput" placeholder="City, neighborhood, or zip…" />
     <select class="radius" id="radius">
       <option value="1609">1 mi</option>
       <option value="3219" selected>2 mi</option>
@@ -139,7 +140,8 @@
     <div class="line"><span id="rCuisine"></span> · <span class="price" id="rPrice"></span> · <span id="rRating"></span></div>
     <div class="addr" id="rAddr"></div>
     <div class="btns">
-      <a id="mapsLink" target="_blank" rel="noopener">Directions 📍</a>
+      <button class="again share" id="shareBtn">Share the plan 📲</button>
+      <a id="mapsLink" class="alt" target="_blank" rel="noopener">Directions 📍</a>
       <a id="siteLink" class="alt" target="_blank" rel="noopener" style="display:none">Website 🔗</a>
       <button class="again" id="respinBtn">Spin again 🔄</button>
     </div>
@@ -158,8 +160,10 @@
   var LS = {mode:"eatSlot.mode", place:"eatSlot.place", radius:"eatSlot.radius"};
   var ALLOWED_RADIUS = ["1609","3219","8047","16093"];
   var storedRadius = localStorage.getItem(LS.radius);
+  // Home base: Atlantic City. Coordinates are baked in so the default needs no geocode.
+  var AC = {lat:39.3643, lng:-74.4229, label:"Atlantic City, NJ"};
   var state = {
-    mode: localStorage.getItem(LS.mode) || "near",
+    mode: localStorage.getItem(LS.mode) || "place",
     radius: ALLOWED_RADIUS.indexOf(storedRadius)>=0 ? storedRadius : "3219"
   };
 
@@ -171,7 +175,7 @@
   var placeInput=$("placeInput"), radiusSel=$("radius");
 
   radiusSel.value = state.radius;
-  placeInput.value = localStorage.getItem(LS.place) || "";
+  placeInput.value = localStorage.getItem(LS.place) || AC.label;
 
   // marquee bulbs
   var mq=document.querySelector(".marquee");
@@ -198,7 +202,25 @@
     [/spanish|tapas/,"🥘"],[/dessert|ice cream|gelato/,"🍰"],[/chicken|wing/,"🍗"],
     [/bar|pub|brew|wine/,"🍷"],[/fast/,"🍟"]
   ];
-  function emojiFor(cuisine){var c=(cuisine||"").toLowerCase();for(var i=0;i<EMOJI.length;i++){if(EMOJI[i][0].test(c))return EMOJI[i][1];}return "🍴";}
+  // When there's no good food emoji, fall back to the cuisine's flag.
+  var FLAG=[
+    [/cuban/,"🇨🇺"],[/puerto.?rican|boricua/,"🇵🇷"],[/dominican/,"🇩🇴"],[/haitian/,"🇭🇹"],
+    [/jamaican|jerk|caribbean|trinidad/,"🇯🇲"],[/peruvian/,"🇵🇪"],[/brazil/,"🇧🇷"],
+    [/argentin/,"🇦🇷"],[/colombian/,"🇨🇴"],[/venezuelan|arepa/,"🇻🇪"],[/salvador|pupusa/,"🇸🇻"],
+    [/guatemal/,"🇬🇹"],[/ethiopian|eritrean/,"🇪🇹"],[/nigerian/,"🇳🇬"],[/ghanaian/,"🇬🇭"],
+    [/senegal|west african|african/,"🌍"],[/moroccan|tagine/,"🇲🇦"],[/lebanese/,"🇱🇧"],
+    [/turkish|kebab|doner/,"🇹🇷"],[/persian|iranian/,"🇮🇷"],[/afghan/,"🇦🇫"],[/pakistani/,"🇵🇰"],
+    [/filipin/,"🇵🇭"],[/indonesian|nasi/,"🇮🇩"],[/malaysian/,"🇲🇾"],[/singapore/,"🇸🇬"],
+    [/german|schnitzel/,"🇩🇪"],[/polish|pierogi/,"🇵🇱"],[/russian|ukrainian/,"🇷🇺"],
+    [/irish/,"🇮🇪"],[/british|english|gastropub|fish.?and.?chips/,"🇬🇧"],[/portuguese/,"🇵🇹"],
+    [/cajun|creole|soul food|southern/,"🇺🇸"],[/hawaiian|poke/,"🇺🇸"],[/jewish|kosher/,"🇮🇱"]
+  ];
+  function emojiFor(cuisine){
+    var c=(cuisine||"").toLowerCase();
+    for(var i=0;i<EMOJI.length;i++){ if(EMOJI[i][0].test(c)) return EMOJI[i][1]; }
+    for(var j=0;j<FLAG.length;j++){ if(FLAG[j][0].test(c)) return FLAG[j][1]; }
+    return "🍴";
+  }
 
   function cellHTML(kind, place){
     if(!place) return '<div class="cell '+kind+'">—</div>';
@@ -241,6 +263,20 @@
   }
 
   function sample(arr){return arr[Math.floor(Math.random()*arr.length)];}
+
+  // Avoid landing on a spot we just showed. With lots of options nearby this
+  // keeps the last few picks off the table; only repeats once everything's seen.
+  var recentPicks=[];
+  function idOf(p){ return p.mapsUri || (p.name+"|"+(p.address||"")); }
+  function pickResult(list){
+    var fresh=list.filter(function(p){ return recentPicks.indexOf(idOf(p))<0; });
+    var from=fresh.length?fresh:list;
+    var pick=from[Math.floor(Math.random()*from.length)];
+    recentPicks.push(idOf(pick));
+    var cap=Math.min(8, Math.max(1, list.length-1));
+    while(recentPicks.length>cap) recentPicks.shift();
+    return pick;
+  }
 
   function animateReel(obj, finalPlace, srcPool, dur){
     return new Promise(function(res){
@@ -376,9 +412,12 @@
       if(sessionCenter&&sessionCenter.mode==="near") return Promise.resolve(sessionCenter);
       return geolocate().then(function(p){sessionCenter={lat:p.lat,lng:p.lng,label:"near you",mode:"near"};return sessionCenter;});
     }
-    var text=(placeInput.value||"").trim();
-    if(!text) return Promise.reject(new Error("Type a city, neighborhood, or zip to search."));
+    var text=(placeInput.value||"").trim() || AC.label;
     if(sessionCenter&&sessionCenter.mode==="place"&&sessionCenter.q===text) return Promise.resolve(sessionCenter);
+    if(text.toLowerCase()===AC.label.toLowerCase()){
+      sessionCenter={lat:AC.lat,lng:AC.lng,label:AC.label,mode:"place",q:text};
+      return Promise.resolve(sessionCenter);
+    }
     return geocode(text).then(function(c){sessionCenter={lat:c.lat,lng:c.lng,label:c.label||text,mode:"place",q:text};return sessionCenter;});
   }
 
@@ -423,7 +462,7 @@
         setStatus("No "+lockSummary()+" spots nearby — loosen a lock or widen the search.", true);
         spinning=false;spinBtn.disabled=false; return;
       }
-      var pick=sample(filtered);
+      var pick=pickResult(filtered);
       animateTo(pick, filtered.length>2?filtered:list).then(function(){
         showResult(pick, center); spinning=false; spinBtn.disabled=false;
       });
@@ -436,7 +475,9 @@
   }
 
   // ---------- result ----------
+  var currentPick=null, currentCenter=null;
   function showResult(p, center){
+    currentPick=p; currentCenter=center;
     $("rName").textContent=p.name;
     $("rCuisine").textContent=(emojiFor(p.cuisine)+" "+p.cuisine);
     $("rPrice").textContent=p.priceStr||"price n/a";
@@ -451,6 +492,35 @@
     resultEl.classList.add("show");
   }
   function hideResult(){ resultEl.classList.remove("show"); }
+
+  // ---------- share ----------
+  function shareText(){
+    var p=currentPick; if(!p) return "";
+    var city=(currentCenter&&currentCenter.label)||"tonight";
+    var emoji=emojiFor(p.cuisine);
+    var line="🎰 Meet me tonight at "+p.name+" "+emoji;
+    var bits=[]; if(p.cuisine) bits.push(p.cuisine); if(p.priceStr) bits.push(p.priceStr);
+    if(p.rating) bits.push("★"+p.rating.toFixed(1));
+    if(bits.length) line+=" — "+bits.join(" · ");
+    line+=" in "+city+".";
+    return line;
+  }
+  function doShare(){
+    if(!currentPick) return;
+    var url=$("mapsLink").href, line=shareText(), full=line+"\n"+url;
+    if(navigator.share){
+      navigator.share({title:"Meet Me Tonight in Atlantic City", text:line, url:url})
+        .then(function(){ setStatus("Shared! See you there 🍴"); })
+        .catch(function(){});
+    } else if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(full).then(
+        function(){ setStatus("Copied! Paste it to whoever you're feeding 💌"); },
+        function(){ window.location.href="sms:?&body="+encodeURIComponent(full); }
+      );
+    } else {
+      window.location.href="sms:?&body="+encodeURIComponent(full);
+    }
+  }
 
   // ---------- status / errors ----------
   function setStatus(msg, isErr){ statusEl.textContent=msg||""; statusEl.classList.toggle("err",!!isErr); }
@@ -482,10 +552,13 @@
 
   spinBtn.addEventListener("click",spin);
   $("respinBtn").addEventListener("click",function(e){e.preventDefault();spin();});
+  $("shareBtn").addEventListener("click",function(e){e.preventDefault();doShare();});
 
   // ---------- boot ----------
   buildReels();
-  setStatus("Ready — pick Near me or a place, then Spin.");
+  setStatus(state.mode==="near"
+    ? "Ready — tap Spin to find dinner near you 🍴"
+    : "Ready — spinning in "+(placeInput.value||AC.label)+". Tap Spin 🍴");
 })();
 </script>
 </body>
