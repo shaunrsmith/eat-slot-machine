@@ -15,359 +15,528 @@
   *{box-sizing:border-box}
   html,body{margin:0;height:100%}
   body{
-    font-family:var(--font);
-    color:var(--paper);
+    font-family:var(--font);color:var(--paper);
     background:
       radial-gradient(1200px 600px at 50% -10%, #3a1d5c 0%, transparent 60%),
       linear-gradient(160deg,var(--bg) 0%,#0d0717 100%);
-    min-height:100%;
-    display:flex;flex-direction:column;align-items:center;
-    padding:18px 14px 40px;
-    -webkit-tap-highlight-color:transparent;
+    min-height:100%;display:flex;flex-direction:column;align-items:center;
+    padding:18px 14px 40px;-webkit-tap-highlight-color:transparent;
   }
-  h1{
-    font-size:clamp(1.5rem,5vw,2.4rem);
-    margin:.2em 0 .1em;text-align:center;line-height:1.05;
-    background:linear-gradient(180deg,#fff,var(--gold));
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-    text-shadow:0 2px 0 rgba(0,0,0,.25);
-    letter-spacing:.5px;
-  }
-  .sub{opacity:.75;font-size:.92rem;text-align:center;margin:0 0 16px;max-width:560px}
+  h1{font-size:clamp(1.5rem,5vw,2.4rem);margin:.2em 0 .1em;text-align:center;line-height:1.05;
+    background:linear-gradient(180deg,#fff,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 2px 0 rgba(0,0,0,.25);letter-spacing:.5px}
+  .sub{opacity:.75;font-size:.92rem;text-align:center;margin:0 0 14px;max-width:560px}
+
+  /* ---- location controls ---- */
+  .controls{width:100%;max-width:560px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+    justify-content:center;margin-bottom:14px}
+  .seg{display:flex;background:#0d0717;border:1px solid rgba(255,211,92,.35);border-radius:12px;overflow:hidden}
+  .seg button{background:transparent;color:var(--paper);border:none;padding:9px 14px;font-weight:700;
+    font-size:.85rem;cursor:pointer;opacity:.6}
+  .seg button.on{background:linear-gradient(180deg,var(--gold),var(--gold2));color:#3a1500;opacity:1}
+  #placeInput{flex:1;min-width:160px;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.15);
+    background:#1b0d2e;color:var(--paper);font-size:.9rem}
+  select.radius{padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:#1b0d2e;color:var(--paper);font-size:.85rem}
+  .gear{margin-left:auto;background:transparent;border:1px solid rgba(255,255,255,.2);color:#cbb;border-radius:10px;
+    padding:9px 11px;cursor:pointer;font-size:.9rem}
 
   /* ---- machine ---- */
-  .machine{
-    width:100%;max-width:560px;
-    background:linear-gradient(180deg,#2c1547,#1b0d2e);
-    border:3px solid var(--gold);
-    border-radius:24px;
-    box-shadow:0 18px 50px var(--shadow), inset 0 0 0 6px rgba(0,0,0,.25);
-    padding:18px 16px 20px;
-  }
-  .marquee{
-    display:flex;gap:6px;justify-content:center;margin-bottom:14px;
-  }
-  .bulb{width:10px;height:10px;border-radius:50%;background:var(--gold);
-    box-shadow:0 0 8px var(--gold);animation:blink 1.1s infinite}
+  .machine{width:100%;max-width:560px;background:linear-gradient(180deg,#2c1547,#1b0d2e);
+    border:3px solid var(--gold);border-radius:24px;
+    box-shadow:0 18px 50px var(--shadow), inset 0 0 0 6px rgba(0,0,0,.25);padding:18px 16px 20px}
+  .marquee{display:flex;gap:6px;justify-content:center;margin-bottom:14px}
+  .bulb{width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);animation:blink 1.1s infinite}
   .bulb:nth-child(2n){animation-delay:.18s;background:var(--red);box-shadow:0 0 8px var(--red)}
   .bulb:nth-child(3n){animation-delay:.36s;background:var(--green);box-shadow:0 0 8px var(--green)}
   @keyframes blink{50%{opacity:.25}}
 
-  .reels{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-  .reel{
-    background:#0d0717;border-radius:16px;padding:10px 8px 12px;
-    display:flex;flex-direction:column;align-items:center;gap:8px;
-    border:2px solid rgba(255,211,92,.35);
-  }
-  .reel h2{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;
-    margin:0;opacity:.8;font-weight:700}
-  .window{
-    position:relative;width:100%;height:96px;overflow:hidden;border-radius:12px;
-    background:var(--reel);color:var(--ink);
-    box-shadow:inset 0 8px 12px rgba(0,0,0,.18), inset 0 -8px 12px rgba(0,0,0,.18);
-  }
-  .window::before,.window::after{content:"";position:absolute;left:0;right:0;height:24px;z-index:3;pointer-events:none}
+  .reels{display:grid;grid-template-columns:1.4fr 1fr .8fr;gap:10px}
+  .reel{background:#0d0717;border-radius:16px;padding:10px 8px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;
+    border:2px solid rgba(255,211,92,.35)}
+  .reel h2{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;margin:0;opacity:.8;font-weight:700}
+  .window{position:relative;width:100%;height:96px;overflow:hidden;border-radius:12px;background:var(--reel);color:var(--ink);
+    box-shadow:inset 0 8px 12px rgba(0,0,0,.18), inset 0 -8px 12px rgba(0,0,0,.18)}
+  .window::before,.window::after{content:"";position:absolute;left:0;right:0;height:22px;z-index:3;pointer-events:none}
   .window::before{top:0;background:linear-gradient(180deg,rgba(255,255,255,.95),transparent)}
   .window::after{bottom:0;background:linear-gradient(0deg,rgba(255,255,255,.95),transparent)}
-  .payline{position:absolute;top:50%;left:6px;right:6px;height:42px;transform:translateY(-50%);
+  .payline{position:absolute;top:50%;left:6px;right:6px;height:44px;transform:translateY(-50%);
     border:2px solid rgba(245,166,35,.6);border-radius:9px;z-index:2;pointer-events:none}
   .strip{position:absolute;left:0;right:0;top:0;will-change:transform}
-  .cell{height:96px;display:flex;align-items:center;justify-content:center;
-    text-align:center;padding:4px 6px;font-weight:700;font-size:1.05rem;line-height:1.15}
-  .cell .emoji{font-size:1.7rem}
-  .cell.price{font-size:1.7rem;letter-spacing:2px;color:var(--green)}
+  .cell{height:96px;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px 6px;
+    font-weight:700;line-height:1.12;color:var(--ink)}
   .cell .stack{display:flex;flex-direction:column;align-items:center;gap:2px}
+  .cell .emoji{font-size:1.6rem}
+  .cell .name{font-size:.92rem;font-weight:800;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .cell .meta{font-size:.7rem;opacity:.7;font-weight:600}
+  .cell.cu{font-size:.92rem}
+  .cell.pr{font-size:1.6rem;letter-spacing:2px;color:#1c8f63}
 
-  .lockrow{display:flex;align-items:center;gap:6px;font-size:.72rem}
-  .lock{
-    appearance:none;width:34px;height:20px;border-radius:20px;background:#3a2a52;
-    position:relative;cursor:pointer;border:none;outline:none;transition:background .2s;flex:none}
-  .lock::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;
-    background:#fff;transition:left .2s}
+  .lockrow{display:flex;align-items:center;gap:6px;font-size:.72rem;min-height:20px}
+  .lock{appearance:none;width:34px;height:20px;border-radius:20px;background:#3a2a52;position:relative;cursor:pointer;border:none;outline:none;transition:background .2s;flex:none}
+  .lock::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s}
   .lock:checked{background:var(--green)}
   .lock:checked::after{left:16px}
   .lockrow label{opacity:.8;cursor:pointer;user-select:none}
-  select{
-    width:100%;font-size:.8rem;padding:5px 6px;border-radius:8px;border:1px solid rgba(255,255,255,.15);
-    background:#1b0d2e;color:var(--paper);
-  }
-  select:disabled{opacity:.35}
+  select.pick{width:100%;font-size:.78rem;padding:5px 6px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:#1b0d2e;color:var(--paper)}
+  select.pick:disabled{opacity:.3}
+  .reel.out .lockrow{opacity:.45;font-size:.68rem;justify-content:center}
 
   .lever-row{display:flex;gap:12px;margin-top:18px}
-  button.spin{
-    flex:1;font-size:1.15rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
-    padding:16px;border:none;border-radius:16px;cursor:pointer;color:#3a1500;
-    background:linear-gradient(180deg,var(--gold),var(--gold2));
-    box-shadow:0 6px 0 #b87412, 0 10px 20px rgba(0,0,0,.35);
-    transition:transform .06s, box-shadow .06s;
-  }
+  button.spin{flex:1;font-size:1.15rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:16px;border:none;border-radius:16px;cursor:pointer;color:#3a1500;
+    background:linear-gradient(180deg,var(--gold),var(--gold2));box-shadow:0 6px 0 #b87412, 0 10px 20px rgba(0,0,0,.35);transition:transform .06s, box-shadow .06s}
   button.spin:active{transform:translateY(4px);box-shadow:0 2px 0 #b87412,0 6px 12px rgba(0,0,0,.35)}
   button.spin:disabled{filter:grayscale(.4) brightness(.85);cursor:default}
 
-  .result{
-    width:100%;max-width:560px;margin-top:18px;border-radius:18px;
-    background:linear-gradient(180deg,#241138,#160c26);
-    border:2px solid rgba(255,211,92,.4);padding:18px 16px;text-align:center;
-    opacity:0;transform:translateY(8px);transition:.3s;
-  }
-  .result.show{opacity:1;transform:none}
-  .result .verdict{font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;opacity:.7}
-  .result .big{font-size:clamp(1.2rem,4.4vw,1.7rem);font-weight:800;margin:6px 0 4px}
-  .result .price{color:var(--green);font-weight:800}
-  .result a{
-    display:inline-block;margin-top:12px;text-decoration:none;font-weight:700;
-    background:var(--green);color:#04231a;padding:11px 18px;border-radius:12px;
-  }
-  .result a.alt{background:transparent;color:var(--gold);border:1px solid var(--gold);margin-left:8px}
+  #status{width:100%;max-width:560px;text-align:center;font-size:.82rem;opacity:.75;margin-top:12px;min-height:1.1em}
+  #status.err{color:var(--red);opacity:1}
 
-  .tools{width:100%;max-width:560px;margin-top:22px}
-  details{background:rgba(255,255,255,.04);border-radius:14px;padding:4px 14px;margin-bottom:10px}
-  summary{cursor:pointer;padding:10px 0;font-weight:700;outline:none}
-  details textarea{
-    width:100%;min-height:120px;border-radius:10px;border:1px solid rgba(255,255,255,.15);
-    background:#0d0717;color:var(--paper);padding:10px;font-family:var(--font);font-size:.9rem;resize:vertical}
-  .hint{font-size:.78rem;opacity:.6;margin:6px 0 10px}
-  .tools button{
-    background:var(--gold);color:#3a1500;border:none;border-radius:10px;padding:9px 14px;
-    font-weight:700;cursor:pointer;margin:0 8px 10px 0}
-  .tools button.ghost{background:transparent;color:#bbb;border:1px solid rgba(255,255,255,.2)}
+  .result{width:100%;max-width:560px;margin-top:14px;border-radius:18px;background:linear-gradient(180deg,#241138,#160c26);
+    border:2px solid rgba(255,211,92,.4);padding:18px 16px;text-align:center;opacity:0;transform:translateY(8px);transition:.3s}
+  .result.show{opacity:1;transform:none}
+  .result .verdict{font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;opacity:.7}
+  .result .big{font-size:clamp(1.2rem,4.6vw,1.7rem);font-weight:800;margin:6px 0 4px}
+  .result .line{font-size:.95rem;opacity:.95;margin:2px 0}
+  .result .price{color:var(--green);font-weight:800}
+  .result .addr{font-size:.82rem;opacity:.6;margin-top:4px}
+  .result .btns{margin-top:13px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .result a,.result button.again{display:inline-block;text-decoration:none;font-weight:700;border:none;cursor:pointer;
+    background:var(--green);color:#04231a;padding:11px 18px;border-radius:12px;font-size:.92rem}
+  .result a.alt,.result button.again{background:transparent;color:var(--gold);border:1px solid var(--gold)}
+
   footer{opacity:.45;font-size:.78rem;margin-top:26px;text-align:center}
+
+  /* ---- setup overlay ---- */
+  .overlay{position:fixed;inset:0;background:rgba(8,4,16,.82);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}
+  .overlay.show{display:flex}
+  .card{background:#211036;border:2px solid var(--gold);border-radius:18px;max-width:440px;width:100%;padding:22px}
+  .card h3{margin:0 0 6px}
+  .card p{font-size:.88rem;opacity:.85;line-height:1.45}
+  .card ol{font-size:.84rem;opacity:.85;line-height:1.5;padding-left:1.1em}
+  .card input{width:100%;padding:11px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:#0d0717;color:var(--paper);font-size:.9rem;margin:10px 0}
+  .card a{color:var(--gold)}
+  .card .row{display:flex;gap:8px;margin-top:6px}
+  .card .row button{flex:1;padding:11px;border-radius:10px;border:none;font-weight:700;cursor:pointer}
+  .card .row button.primary{background:var(--gold);color:#3a1500}
+  .card .row button.ghost{background:transparent;color:#bbb;border:1px solid rgba(255,255,255,.2)}
+  .card .err{color:var(--red);font-size:.82rem;min-height:1em}
 </style>
 </head>
 <body>
   <h1>🎰 Where Should We Eat?</h1>
-  <p class="sub">Spin the reels for <b>location</b>, <b>cuisine</b>, and <b>price</b>. Flip a 🔒 lock to pin one reel to a choice you've already made, then spin the rest.</p>
+  <p class="sub">Spin for a <b>real restaurant near you</b>. Flip a 🔒 lock to pin a cuisine or price, then spin to pick a random spot that fits.</p>
+
+  <div class="controls">
+    <div class="seg" id="modeSeg">
+      <button data-mode="near" class="on">📍 Near me</button>
+      <button data-mode="place">🔎 A place</button>
+    </div>
+    <input id="placeInput" placeholder="City, neighborhood, or zip…" style="display:none" />
+    <select class="radius" id="radius">
+      <option value="1500">1 km</option>
+      <option value="3000" selected>3 km</option>
+      <option value="8000">8 km</option>
+      <option value="20000">20 km</option>
+    </select>
+    <button class="gear" id="gearBtn" title="Settings">⚙︎</button>
+  </div>
 
   <div class="machine">
     <div class="marquee" aria-hidden="true"></div>
     <div class="reels" id="reels"></div>
-    <div class="lever-row">
-      <button class="spin" id="spinBtn">Spin 🍴</button>
-    </div>
+    <div class="lever-row"><button class="spin" id="spinBtn">Spin 🍴</button></div>
   </div>
+
+  <div id="status"></div>
 
   <div class="result" id="result" aria-live="polite">
     <div class="verdict">Tonight you're eating…</div>
-    <div class="big"><span id="rType"></span> in <span id="rLoc"></span></div>
-    <div class="price" id="rPrice"></div>
-    <a id="mapsLink" target="_blank" rel="noopener">Find it on Maps 📍</a>
-    <a class="alt" id="respinBtn" href="#">Spin again 🔄</a>
+    <div class="big" id="rName"></div>
+    <div class="line"><span id="rCuisine"></span> · <span class="price" id="rPrice"></span> · <span id="rRating"></span></div>
+    <div class="addr" id="rAddr"></div>
+    <div class="btns">
+      <a id="mapsLink" target="_blank" rel="noopener">Directions 📍</a>
+      <a id="siteLink" class="alt" target="_blank" rel="noopener" style="display:none">Website 🔗</a>
+      <button class="again" id="respinBtn">Spin again 🔄</button>
+    </div>
   </div>
 
-  <div class="tools">
-    <details>
-      <summary>✏️ Edit locations &amp; cuisines</summary>
-      <p class="hint">One per line. Add a leading emoji on cuisines if you like (e.g. “🍕 Pizza”). Saved in your browser.</p>
-      <label>Locations</label>
-      <textarea id="locText"></textarea>
-      <label>Cuisines</label>
-      <textarea id="typeText"></textarea>
-      <div style="margin-top:10px">
-        <button id="saveBtn">Save</button>
-        <button class="ghost" id="resetBtn">Reset to defaults</button>
+  <footer>Real data from Google Places · settles the “I don't care, you pick” dinner argument 🥡</footer>
+
+  <!-- API key setup -->
+  <div class="overlay" id="setup">
+    <div class="card">
+      <h3>🔑 One-time setup</h3>
+      <p>This app reads live restaurants from <b>Google Places</b>. Paste a Google Maps API key — it's stored only in <b>this browser</b> (never uploaded).</p>
+      <input id="keyInput" placeholder="AIza… your Google Maps API key" autocomplete="off" spellcheck="false" />
+      <div class="err" id="keyErr"></div>
+      <div class="row">
+        <button class="primary" id="keySave">Save &amp; start</button>
+        <button class="ghost" id="keyClose">Close</button>
       </div>
-    </details>
+      <details style="margin-top:12px">
+        <summary style="cursor:pointer;font-size:.85rem">How do I get a key? (5 min, free)</summary>
+        <ol>
+          <li>Go to <a href="https://console.cloud.google.com/google/maps-apis/start" target="_blank" rel="noopener">Google Maps Platform</a> and create/select a project.</li>
+          <li>Enable these APIs: <b>Maps JavaScript API</b>, <b>Places API (New)</b>, <b>Geocoding API</b>.</li>
+          <li>Credentials → <b>Create credentials → API key</b>.</li>
+          <li>Restrict it: <b>Application restrictions → Websites</b>, add <code>https://shaunrsmith.github.io/*</code> (and <code>http://localhost/*</code> for local testing).</li>
+          <li>Paste it above. Personal use stays within Google's free monthly tier.</li>
+        </ol>
+      </details>
+    </div>
   </div>
-
-  <footer>Built for the “I don't care, you pick” dinner argument. 🥡</footer>
 
 <script>
 (function(){
   "use strict";
 
-  var DEFAULT_LOCS = [
-    "Downtown","Uptown","Old Town","The Marina","Midtown",
-    "The Waterfront","Chinatown","Little Italy","The Strip","Near home"
-  ];
-  var DEFAULT_TYPES = [
-    "🍕 Pizza","🍣 Sushi","🌮 Tacos","🍔 Burgers","🍜 Ramen",
-    "🍝 Italian","🥡 Thai","🥘 Indian","🥩 Steakhouse","🥗 Mediterranean",
-    "🍤 Seafood","🌯 Mexican","🍗 BBQ","🥐 Brunch","🍲 Korean"
-  ];
-  var PRICES = ["$","$$","$$$","$$$$"];
+  // ---------- config / state ----------
+  var HARDCODED_KEY = ""; // optional: bake a key in here instead of pasting in-app
+  var LS = {key:"eatSlot.key", mode:"eatSlot.mode", place:"eatSlot.place", radius:"eatSlot.radius"};
+  var state = {
+    mode: localStorage.getItem(LS.mode) || "near",
+    radius: localStorage.getItem(LS.radius) || "3000"
+  };
 
-  var LS = "eatSlotMachine.v1";
-  function load(){
-    try{ var s=JSON.parse(localStorage.getItem(LS)); if(s&&s.locs&&s.types) return s; }catch(e){}
-    return {locs:DEFAULT_LOCS.slice(), types:DEFAULT_TYPES.slice()};
-  }
-  function save(st){ try{ localStorage.setItem(LS, JSON.stringify(st)); }catch(e){} }
-  function parseLines(t){ return t.split("\n").map(function(x){return x.trim();}).filter(Boolean); }
+  function resolveKey(){ return (localStorage.getItem(LS.key) || HARDCODED_KEY || "").trim(); }
 
-  var state = load();
+  // ---------- elements ----------
+  var $ = function(id){ return document.getElementById(id); };
+  var statusEl=$("status"), resultEl=$("result"), spinBtn=$("spinBtn");
+  var placeInput=$("placeInput"), radiusSel=$("radius");
+  var setupEl=$("setup"), keyInput=$("keyInput"), keyErr=$("keyErr");
+
+  radiusSel.value = state.radius;
+  placeInput.value = localStorage.getItem(LS.place) || "";
 
   // marquee bulbs
   var mq=document.querySelector(".marquee");
   for(var b=0;b<11;b++){var d=document.createElement("div");d.className="bulb";mq.appendChild(d);}
 
-  // reel definitions
-  var REELS = [
-    {key:"loc",   label:"Location", get:function(){return state.locs;}, kind:"text"},
-    {key:"type",  label:"Cuisine",  get:function(){return state.types;}, kind:"emoji"},
-    {key:"price", label:"Price",    get:function(){return PRICES;},      kind:"price"}
+  // ---------- reels ----------
+  var CELL_H=96;
+  var REELS=[
+    {key:"name",  label:"Restaurant", kind:"name", out:true},
+    {key:"cuisine",label:"Cuisine",   kind:"cu",   lock:true},
+    {key:"price", label:"Price",      kind:"pr",   lock:true}
   ];
+  var reelsEl=$("reels"), reelObjs=[], cuisineSel, priceSel, lockCuisine, lockPrice;
 
-  var reelsEl=document.getElementById("reels");
-  var reelObjs=[];
+  function esc(s){return (""+s).replace(/[&<>"']/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];});}
 
-  function splitEmoji(s){
-    // pull a leading emoji off "🍕 Pizza" -> {emoji:"🍕", text:"Pizza"}
-    var m = s.match(/^(\p{Extended_Pictographic}[️‍\p{Extended_Pictographic}]*)\s+(.*)$/u);
-    if(m) return {emoji:m[1], text:m[2]};
-    return {emoji:"", text:s};
-  }
+  var EMOJI=[
+    [/sushi|japanese|ramen|izakaya|noodle/,"🍣"],[/pizza/,"🍕"],[/italian|pasta/,"🍝"],
+    [/taco|mexican|burrito/,"🌮"],[/burger|american|diner/,"🍔"],[/thai/,"🍜"],[/indian|curry/,"🍛"],
+    [/chinese|dim sum|dumpling/,"🥡"],[/korean/,"🍲"],[/steak|grill/,"🥩"],[/seafood|fish|oyster/,"🦞"],
+    [/mediterranean|greek|falafel|middle/,"🥙"],[/french|bistro|crepe/,"🥐"],[/cafe|coffee/,"☕"],
+    [/bakery|bread|pastry/,"🥐"],[/vegan|vegetarian|salad/,"🥗"],[/bbq|barbe/,"🍖"],
+    [/breakfast|brunch|pancake/,"🍳"],[/sandwich|deli|sub/,"🥪"],[/vietnam|pho/,"🍜"],
+    [/spanish|tapas/,"🥘"],[/dessert|ice cream|gelato/,"🍰"],[/chicken|wing/,"🍗"],
+    [/bar|pub|brew|wine/,"🍷"],[/fast/,"🍟"]
+  ];
+  function emojiFor(cuisine){var c=(cuisine||"").toLowerCase();for(var i=0;i<EMOJI.length;i++){if(EMOJI[i][0].test(c))return EMOJI[i][1];}return "🍴";}
 
-  function cellHTML(reel, val){
-    if(reel.kind==="price"){
-      return '<div class="cell price">'+val+'</div>';
+  function cellHTML(kind, place){
+    if(!place) return '<div class="cell '+kind+'">—</div>';
+    if(kind==="name"){
+      var meta = place.rating ? ("★ "+place.rating.toFixed(1)) : (place.priceStr||"");
+      return '<div class="cell name"><div class="stack"><span class="name">'+esc(place.name)+'</span>'+
+             (meta?'<span class="meta">'+esc(meta)+'</span>':'')+'</div></div>';
     }
-    if(reel.kind==="emoji"){
-      var p=splitEmoji(val);
-      return '<div class="cell"><div class="stack">'+
-        (p.emoji?'<span class="emoji">'+p.emoji+'</span>':'')+
-        '<span>'+escapeHtml(p.text)+'</span></div></div>';
+    if(kind==="cu"){
+      return '<div class="cell cu"><div class="stack"><span class="emoji">'+emojiFor(place.cuisine)+'</span><span>'+esc(place.cuisine)+'</span></div></div>';
     }
-    return '<div class="cell">'+escapeHtml(val)+'</div>';
+    return '<div class="cell pr">'+esc(place.priceStr||"$?")+'</div>';
   }
-  function escapeHtml(s){return s.replace(/[&<>"']/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];});}
 
   function buildReels(){
-    reelsEl.innerHTML="";
-    reelObjs=[];
+    reelsEl.innerHTML="";reelObjs=[];
     REELS.forEach(function(reel){
       var wrap=document.createElement("div");
-      wrap.className="reel";
-      wrap.innerHTML=
-        '<h2>'+reel.label+'</h2>'+
-        '<div class="window"><div class="payline"></div><div class="strip"></div></div>'+
-        '<div class="lockrow"><input type="checkbox" class="lock"><label>lock</label></div>'+
-        '<select disabled></select>';
+      wrap.className="reel"+(reel.out?" out":"");
+      var lockHTML = reel.lock
+        ? '<div class="lockrow"><input type="checkbox" class="lock"><label>lock</label></div><select class="pick" disabled></select>'
+        : '<div class="lockrow">🎲 the pick</div>';
+      wrap.innerHTML='<h2>'+reel.label+'</h2><div class="window"><div class="payline"></div><div class="strip"></div></div>'+lockHTML;
       reelsEl.appendChild(wrap);
-
-      var strip=wrap.querySelector(".strip");
-      var lock=wrap.querySelector(".lock");
-      var sel=wrap.querySelector("select");
-
-      function refillSelect(){
-        var vals=reel.get();
-        sel.innerHTML=vals.map(function(v){return '<option>'+escapeHtml(v)+'</option>';}).join("");
-      }
-      refillSelect();
-
-      lock.addEventListener("change",function(){ sel.disabled=!lock.checked; });
-
-      var obj={reel:reel,strip:strip,lock:lock,sel:sel,refillSelect:refillSelect,current:reel.get()[0]};
-      setStrip(obj, reel.get()[0]);
+      var obj={reel:reel,kind:reel.kind,strip:wrap.querySelector(".strip"),
+               lock:wrap.querySelector(".lock"),sel:wrap.querySelector("select")};
+      if(obj.lock){ obj.lock.addEventListener("change",function(){obj.sel.disabled=!obj.lock.checked;}); }
       reelObjs.push(obj);
+    });
+    cuisineSel=reelObjs[1].sel; lockCuisine=reelObjs[1].lock;
+    priceSel=reelObjs[2].sel;   lockPrice=reelObjs[2].lock;
+    setStripFinal(reelObjs[0], {name:"Spin to find",cuisine:"",priceStr:""});
+    setStripFinal(reelObjs[1], {cuisine:"anything"});
+    setStripFinal(reelObjs[2], {priceStr:"$–$$$$"});
+  }
+
+  function setStripFinal(obj, place){
+    obj.strip.style.transition="none";obj.strip.style.transform="translateY(0)";
+    obj.strip.innerHTML=cellHTML(obj.kind, place);
+  }
+
+  function sample(arr){return arr[Math.floor(Math.random()*arr.length)];}
+
+  function animateReel(obj, finalPlace, srcPool, dur){
+    return new Promise(function(res){
+      var spins=18+Math.floor(Math.random()*6),seq=[],i;
+      for(i=0;i<spins;i++) seq.push(sample(srcPool));
+      seq.push(finalPlace);
+      obj.strip.style.transition="none";obj.strip.style.transform="translateY(0)";
+      obj.strip.innerHTML=seq.map(function(pl){return cellHTML(obj.kind,pl);}).join("");
+      void obj.strip.offsetHeight;
+      var dist=(seq.length-1)*CELL_H;
+      obj.strip.style.transition="transform "+dur+"ms cubic-bezier(.16,.84,.3,1)";
+      obj.strip.style.transform="translateY(-"+dist+"px)";
+      setTimeout(function(){ setStripFinal(obj, finalPlace); res(); }, dur+30);
     });
   }
 
-  // place a single value centered in the window (window height 96)
-  function setStrip(obj,val){
-    obj.strip.style.transition="none";
-    obj.strip.style.transform="translateY(0)";
-    obj.strip.innerHTML=cellHTML(obj.reel,val);
-    obj.current=val;
+  function animateTo(pick, srcPool){
+    var base=1500;
+    return Promise.all([
+      animateReel(reelObjs[0], pick, srcPool, base),
+      animateReel(reelObjs[1], pick, srcPool, base+420),
+      animateReel(reelObjs[2], pick, srcPool, base+820)
+    ]);
   }
 
-  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  // ---------- Google Maps loader ----------
+  var mapsReady=null;
+  function loadBootstrap(key){
+    if(window.google && window.google.maps && window.google.maps.importLibrary) return;
+    (function(g){var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",
+      m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,
+      u=function(){return h||(h=new Promise(function(f,n){a=m.createElement("script");e.set("libraries",[].concat([...r])+"");
+      for(k in g)e.set(k.replace(/[A-Z]/g,function(t){return "_"+t[0].toLowerCase();}),g[k]);
+      e.set("callback",c+".maps."+q);a.src="https://maps."+c+"apis.com/maps/api/js?"+e;d[q]=f;
+      a.onerror=function(){h=n(Error(p+" could not load."));};m.head.append(a);}));};
+      d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=function(f){for(var n=arguments.length,
+      P=new Array(n>1?n-1:0),o=1;o<n;o++)P[o-1]=arguments[o];return r.add(f)&&u().then(function(){return d[l].apply(d,[f].concat(P));});};
+    })({key:key,v:"weekly"});
+  }
+  function ensureMaps(){
+    if(mapsReady) return mapsReady;
+    var key=resolveKey();
+    if(!key) return Promise.reject(new Error("NO_KEY"));
+    loadBootstrap(key);
+    mapsReady = Promise.all([
+      google.maps.importLibrary("places"),
+      google.maps.importLibrary("geocoding")
+    ]).then(function(libs){
+      return {Place:libs[0].Place, Rank:libs[0].SearchNearbyRankPreference, Geocoder:libs[1].Geocoder};
+    });
+    return mapsReady;
+  }
+  // Google calls this on auth errors (bad/over-quota key)
+  window.gm_authFailure=function(){
+    mapsReady=null;
+    setStatus("That API key was rejected by Google — check it's valid and the right APIs are enabled.", true);
+    openSetup("Key rejected. Double-check Maps JavaScript API, Places API (New) & Geocoding API are enabled, and the key allows this site.");
+  };
 
+  // ---------- data ----------
+  var PRICE_MAP={FREE:0,INEXPENSIVE:1,MODERATE:2,EXPENSIVE:3,VERY_EXPENSIVE:4};
+  function priceCount(pl){ if(pl==null) return null; var k=(""+pl).toUpperCase(); return (k in PRICE_MAP)?PRICE_MAP[k]:null; }
+  function priceStr(n){ return (n==null||n<=0)?null:Array(n+1).join("$"); }
+
+  function cuisineOf(p){
+    var disp = p.primaryTypeDisplayName && (p.primaryTypeDisplayName.text||p.primaryTypeDisplayName);
+    if(disp){ var d=(""+disp).replace(/\brestaurant\b/i,"").trim(); return d||""+disp; }
+    var slug=p.primaryType||"";
+    if(slug.indexOf("_restaurant")>=0) slug=slug.replace("_restaurant","");
+    if(!slug||slug==="restaurant"||slug==="food") return "Restaurant";
+    return slug.split("_").map(function(w){return w?w[0].toUpperCase()+w.slice(1):w;}).join(" ");
+  }
+  function dist(aLat,aLng,bLat,bLng){
+    var R=6371,dLa=(bLat-aLat)*Math.PI/180,dLo=(bLng-aLng)*Math.PI/180,
+    s=Math.sin(dLa/2)*Math.sin(dLa/2)+Math.cos(aLat*Math.PI/180)*Math.cos(bLat*Math.PI/180)*Math.sin(dLo/2)*Math.sin(dLo/2);
+    return R*2*Math.atan2(Math.sqrt(s),Math.sqrt(1-s));
+  }
+  function normalize(p, center){
+    var loc=p.location, lat=loc&&(typeof loc.lat==="function"?loc.lat():loc.lat), lng=loc&&(typeof loc.lng==="function"?loc.lng():loc.lng);
+    var pc=priceCount(p.priceLevel);
+    return {
+      name: (p.displayName && (p.displayName.text||p.displayName)) || "A restaurant",
+      cuisine: cuisineOf(p) || "Restaurant",
+      priceCount: pc, priceStr: priceStr(pc),
+      rating: p.rating||null, ratingCount: p.userRatingCount||0,
+      address: p.formattedAddress||"", mapsUri: p.googleMapsURI||"",
+      site: p.websiteURI||"",
+      lat:lat, lng:lng,
+      km: (center&&lat!=null)? dist(center.lat,center.lng,lat,lng) : null
+    };
+  }
+
+  function fetchPool(center, radiusM){
+    return ensureMaps().then(function(g){
+      var req={
+        fields:["displayName","location","priceLevel","primaryType","primaryTypeDisplayName","rating","userRatingCount","formattedAddress","googleMapsURI","websiteURI","types"],
+        locationRestriction:{center:{lat:center.lat,lng:center.lng}, radius:radiusM},
+        includedTypes:["restaurant"],
+        excludedTypes:["fast_food_restaurant"],
+        maxResultCount:20,
+        rankPreference: g.Rank ? g.Rank.POPULARITY : "POPULARITY",
+        language:"en-US"
+      };
+      // excludedTypes is optional/may not be supported everywhere; drop if it errors
+      return g.Place.searchNearby(req).catch(function(){ delete req.excludedTypes; return g.Place.searchNearby(req); })
+        .then(function(r){ return (r.places||[]).map(function(p){return normalize(p, center);}); });
+    });
+  }
+
+  // ---------- location ----------
+  var sessionCenter=null;
+  function geolocate(){
+    return new Promise(function(res,rej){
+      if(!navigator.geolocation) return rej(new Error("This browser can't share your location — type a place instead."));
+      navigator.geolocation.getCurrentPosition(
+        function(pos){res({lat:pos.coords.latitude,lng:pos.coords.longitude});},
+        function(){rej(new Error("Location permission denied — type a place instead, or allow location."));},
+        {enableHighAccuracy:false,timeout:10000,maximumAge:300000}
+      );
+    });
+  }
+  function geocode(text){
+    return ensureMaps().then(function(g){
+      return new (g.Geocoder)().geocode({address:text}).then(function(r){
+        if(!r.results||!r.results.length) throw new Error("Couldn't find “"+text+"”. Try a city, neighborhood, or zip.");
+        var l=r.results[0].geometry.location;
+        return {lat:l.lat(),lng:l.lng(),label:r.results[0].formatted_address};
+      });
+    });
+  }
+  function getCenter(){
+    if(state.mode==="near"){
+      if(sessionCenter&&sessionCenter.mode==="near") return Promise.resolve(sessionCenter);
+      return geolocate().then(function(p){sessionCenter={lat:p.lat,lng:p.lng,label:"near you",mode:"near"};return sessionCenter;});
+    }
+    var text=(placeInput.value||"").trim();
+    if(!text) return Promise.reject(new Error("Type a city, neighborhood, or zip to search."));
+    if(sessionCenter&&sessionCenter.mode==="place"&&sessionCenter.q===text) return Promise.resolve(sessionCenter);
+    return geocode(text).then(function(c){sessionCenter={lat:c.lat,lng:c.lng,label:c.label||text,mode:"place",q:text};return sessionCenter;});
+  }
+
+  // ---------- pool cache + lock options ----------
+  var pool=null, poolKey=null;
+  function getPool(force){
+    return getCenter().then(function(center){
+      var key=center.mode+":"+center.lat.toFixed(3)+","+center.lng.toFixed(3)+":"+state.radius;
+      if(!force&&pool&&poolKey===key) return {center:center,pool:pool};
+      setStatus("Finding restaurants "+(center.mode==="near"?"near you":"in "+center.label)+"…");
+      return fetchPool(center, Number(state.radius)).then(function(list){
+        pool=list; poolKey=key; refreshLockOptions(list);
+        setStatus(list.length? (list.length+" spots "+(center.mode==="near"?"near you":"in "+center.label)+" — spin away!") : "No restaurants found here — widen the radius or try another place.");
+        return {center:center,pool:list};
+      });
+    });
+  }
+  function refreshLockOptions(list){
+    var cu={}, pr={};
+    list.forEach(function(p){ if(p.cuisine) cu[p.cuisine]=(cu[p.cuisine]||0)+1; if(p.priceStr) pr[p.priceStr]=(pr[p.priceStr]||0)+1; });
+    fillSelect(cuisineSel, Object.keys(cu).sort(function(a,b){return cu[b]-cu[a];}));
+    fillSelect(priceSel, ["$","$$","$$$","$$$$"].filter(function(s){return pr[s];}));
+  }
+  function fillSelect(sel, vals){
+    var cur=sel.value;
+    sel.innerHTML=vals.map(function(v){return '<option>'+esc(v)+'</option>';}).join("") || '<option disabled>none nearby</option>';
+    if(vals.indexOf(cur)>=0) sel.value=cur;
+  }
+
+  // ---------- spin ----------
   var spinning=false;
   function spin(){
     if(spinning) return;
-    spinning=true;
-    document.getElementById("spinBtn").disabled=true;
-    document.getElementById("result").classList.remove("show");
-
-    var finals={};
-    var maxDur=0;
-
-    reelObjs.forEach(function(obj,i){
-      var vals=obj.reel.get();
-      if(!vals.length) vals=["—"];
-      var locked=obj.lock.checked;
-      var finalVal = locked ? obj.sel.value : pick(vals);
-      finals[obj.reel.key]=finalVal;
-
-      if(locked){
-        setStrip(obj,finalVal);
-        return;
+    if(!resolveKey()){ openSetup(); return; }
+    spinning=true; spinBtn.disabled=true; hideResult();
+    getPool(false).then(function(r){
+      var list=r.pool, center=r.center;
+      if(!list.length){ spinning=false;spinBtn.disabled=false; return; }
+      var filtered=list.slice();
+      if(lockCuisine.checked&&!cuisineSel.disabled) filtered=filtered.filter(function(p){return p.cuisine===cuisineSel.value;});
+      if(lockPrice.checked&&!priceSel.disabled)     filtered=filtered.filter(function(p){return p.priceStr===priceSel.value;});
+      if(!filtered.length){
+        setStatus("No "+lockSummary()+" spots nearby — loosen a lock or widen the search.", true);
+        spinning=false;spinBtn.disabled=false; return;
       }
-
-      // build a long random strip ending on finalVal
-      var spins=18+i*6+Math.floor(Math.random()*6);
-      var seq=[];
-      for(var k=0;k<spins;k++) seq.push(pick(vals));
-      seq.push(finalVal);
-      var html="";
-      seq.forEach(function(v){ html+=cellHTML(obj.reel,v); });
-      obj.strip.style.transition="none";
-      obj.strip.style.transform="translateY(0)";
-      obj.strip.innerHTML=html;
-
-      // animate to last cell
-      var cellH=96;
-      var dist=(seq.length-1)*cellH;
-      var dur=1600+i*450+Math.random()*250;
-      maxDur=Math.max(maxDur,dur);
-      // force reflow then transition
-      void obj.strip.offsetHeight;
-      obj.strip.style.transition="transform "+dur+"ms cubic-bezier(.16,.84,.3,1)";
-      obj.strip.style.transform="translateY(-"+dist+"px)";
-
-      (function(o,v,duration){
-        setTimeout(function(){ setStrip(o,v); },duration+30);
-      })(obj,finalVal,dur);
+      var pick=sample(filtered);
+      animateTo(pick, filtered.length>2?filtered:list).then(function(){
+        showResult(pick, center); spinning=false; spinBtn.disabled=false;
+      });
+    }).catch(function(e){
+      handleError(e); spinning=false; spinBtn.disabled=false;
     });
-
-    setTimeout(function(){
-      spinning=false;
-      document.getElementById("spinBtn").disabled=false;
-      showResult(finals);
-    }, maxDur+120);
+  }
+  function lockSummary(){
+    var a=[]; if(lockCuisine.checked)a.push(cuisineSel.value); if(lockPrice.checked)a.push(priceSel.value); return a.join(" ")||"matching";
   }
 
-  function showResult(f){
-    var typeRaw=f.type||"food";
-    var loc=f.loc||"anywhere";
-    var price=f.price||"$$";
-    var typeText=splitEmoji(typeRaw).text;
-    document.getElementById("rType").textContent=typeRaw;
-    document.getElementById("rLoc").textContent=loc;
-    document.getElementById("rPrice").textContent=price+" · "+priceWord(price);
-    var q=encodeURIComponent(typeText+" restaurants in "+loc);
-    document.getElementById("mapsLink").href="https://www.google.com/maps/search/"+q;
-    document.getElementById("result").classList.add("show");
+  // ---------- result ----------
+  function showResult(p, center){
+    $("rName").textContent=p.name;
+    $("rCuisine").textContent=(emojiFor(p.cuisine)+" "+p.cuisine);
+    $("rPrice").textContent=p.priceStr||"price n/a";
+    var rt = p.rating? ("★ "+p.rating.toFixed(1)+(p.ratingCount?(" ("+p.ratingCount+")"):"")) : "no rating yet";
+    $("rRating").textContent=rt;
+    var bits=[]; if(p.km!=null) bits.push(p.km<1?Math.round(p.km*1000)+" m away":p.km.toFixed(1)+" km away"); if(p.address) bits.push(p.address);
+    $("rAddr").textContent=bits.join(" · ");
+    var maps = p.mapsUri || ("https://www.google.com/maps/search/"+encodeURIComponent(p.name+" "+(p.address||"")));
+    $("mapsLink").href=maps;
+    var site=$("siteLink");
+    if(p.site){ site.href=p.site; site.style.display=""; } else site.style.display="none";
+    resultEl.classList.add("show");
   }
-  function priceWord(p){return {"$":"cheap eats","$$":"easygoing","$$$":"a nice night","$$$$":"big spender"}[p]||"";}
+  function hideResult(){ resultEl.classList.remove("show"); }
 
-  document.getElementById("spinBtn").addEventListener("click",spin);
-  document.getElementById("respinBtn").addEventListener("click",function(e){e.preventDefault();spin();});
+  // ---------- status / errors ----------
+  function setStatus(msg, isErr){ statusEl.textContent=msg||""; statusEl.classList.toggle("err",!!isErr); }
+  function handleError(e){
+    if(e&&e.message==="NO_KEY"){ openSetup(); return; }
+    setStatus((e&&e.message)||"Something went wrong.", true);
+  }
 
-  // ---- editor ----
-  var locText=document.getElementById("locText");
-  var typeText=document.getElementById("typeText");
-  function fillEditor(){ locText.value=state.locs.join("\n"); typeText.value=state.types.join("\n"); }
-  fillEditor();
-
-  document.getElementById("saveBtn").addEventListener("click",function(){
-    var locs=parseLines(locText.value), types=parseLines(typeText.value);
-    if(!locs.length) locs=DEFAULT_LOCS.slice();
-    if(!types.length) types=DEFAULT_TYPES.slice();
-    state={locs:locs,types:types};
-    save(state);
-    reelObjs.forEach(function(o){o.refillSelect();setStrip(o,o.reel.get()[0]);});
-    flash(this,"Saved ✓");
+  // ---------- setup overlay ----------
+  function openSetup(errMsg){ keyInput.value=localStorage.getItem(LS.key)||""; keyErr.textContent=errMsg||""; setupEl.classList.add("show"); keyInput.focus(); }
+  function closeSetup(){ setupEl.classList.remove("show"); }
+  $("gearBtn").addEventListener("click",function(){openSetup();});
+  $("keyClose").addEventListener("click",closeSetup);
+  $("keySave").addEventListener("click",function(){
+    var k=(keyInput.value||"").trim();
+    if(!k){ keyErr.textContent="Paste a key first."; return; }
+    localStorage.setItem(LS.key,k); mapsReady=null; pool=null; poolKey=null; sessionCenter=null;
+    closeSetup(); setStatus("Key saved. Hit Spin!");
   });
-  document.getElementById("resetBtn").addEventListener("click",function(){
-    state={locs:DEFAULT_LOCS.slice(),types:DEFAULT_TYPES.slice()};
-    save(state); fillEditor();
-    reelObjs.forEach(function(o){o.refillSelect();setStrip(o,o.reel.get()[0]);});
-    flash(this,"Reset ✓");
-  });
-  function flash(btn,msg){var t=btn.textContent;btn.textContent=msg;setTimeout(function(){btn.textContent=t;},1100);}
 
+  // ---------- controls wiring ----------
+  document.querySelectorAll("#modeSeg button").forEach(function(btn){
+    btn.addEventListener("click",function(){
+      document.querySelectorAll("#modeSeg button").forEach(function(b){b.classList.remove("on");});
+      btn.classList.add("on");
+      state.mode=btn.dataset.mode; localStorage.setItem(LS.mode,state.mode);
+      placeInput.style.display = state.mode==="place"?"":"none";
+      sessionCenter=null; pool=null; poolKey=null;
+      if(state.mode==="place") placeInput.focus();
+    });
+  });
+  // restore mode
+  (function(){
+    var on=document.querySelector('#modeSeg button[data-mode="'+state.mode+'"]')||document.querySelector("#modeSeg button");
+    document.querySelectorAll("#modeSeg button").forEach(function(b){b.classList.remove("on");});
+    on.classList.add("on"); state.mode=on.dataset.mode;
+    placeInput.style.display = state.mode==="place"?"":"none";
+  })();
+  placeInput.addEventListener("change",function(){ localStorage.setItem(LS.place,placeInput.value.trim()); sessionCenter=null;pool=null;poolKey=null; });
+  placeInput.addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); spin(); } });
+  radiusSel.addEventListener("change",function(){ state.radius=radiusSel.value; localStorage.setItem(LS.radius,state.radius); pool=null;poolKey=null; });
+
+  spinBtn.addEventListener("click",spin);
+  $("respinBtn").addEventListener("click",function(e){e.preventDefault();spin();});
+
+  // ---------- boot ----------
   buildReels();
+  if(!resolveKey()){ openSetup(); setStatus("Add your Google Maps key to begin →"); }
+  else setStatus("Ready — pick Near me or a place, then Spin.");
 })();
 </script>
 </body>
