@@ -132,10 +132,10 @@
     </div>
     <input id="placeInput" placeholder="City, neighborhood, or zip…" style="display:none" />
     <select class="radius" id="radius">
-      <option value="1500">1 km</option>
-      <option value="3000" selected>3 km</option>
-      <option value="8000">8 km</option>
-      <option value="20000">20 km</option>
+      <option value="1609">1 mi</option>
+      <option value="3219" selected>2 mi</option>
+      <option value="8047">5 mi</option>
+      <option value="16093">10 mi</option>
     </select>
     <button class="gear" id="gearBtn" title="Settings">⚙︎</button>
   </div>
@@ -191,11 +191,16 @@
   "use strict";
 
   // ---------- config / state ----------
-  var HARDCODED_KEY = ""; // optional: bake a key in here instead of pasting in-app
+  // Shared default key so anyone can use the app without setup. It is referrer-
+  // locked to this site in the Google console, so it only works from here.
+  // A key a visitor enters via ⚙︎ (saved in their own browser) still wins.
+  var HARDCODED_KEY = "AIzaSyDuMLBU95qUJ9UX5L8Pn3TkhI5GS0fnE4g";
   var LS = {key:"eatSlot.key", mode:"eatSlot.mode", place:"eatSlot.place", radius:"eatSlot.radius"};
+  var ALLOWED_RADIUS = ["1609","3219","8047","16093"];
+  var storedRadius = localStorage.getItem(LS.radius);
   var state = {
     mode: localStorage.getItem(LS.mode) || "near",
-    radius: localStorage.getItem(LS.radius) || "3000"
+    radius: ALLOWED_RADIUS.indexOf(storedRadius)>=0 ? storedRadius : "3219"
   };
 
   function resolveKey(){ return (localStorage.getItem(LS.key) || HARDCODED_KEY || "").trim(); }
@@ -340,6 +345,7 @@
   var PRICE_MAP={FREE:0,INEXPENSIVE:1,MODERATE:2,EXPENSIVE:3,VERY_EXPENSIVE:4};
   function priceCount(pl){ if(pl==null) return null; var k=(""+pl).toUpperCase(); return (k in PRICE_MAP)?PRICE_MAP[k]:null; }
   function priceStr(n){ return (n==null||n<=0)?null:Array(n+1).join("$"); }
+  function milesAway(km){ var mi=km*0.621371; return mi<0.1 ? Math.round(km*3280.84)+" ft away" : mi.toFixed(1)+" mi away"; }
 
   function cuisineOf(p){
     var disp = p.primaryTypeDisplayName && (p.primaryTypeDisplayName.text||p.primaryTypeDisplayName);
@@ -479,7 +485,7 @@
     $("rPrice").textContent=p.priceStr||"price n/a";
     var rt = p.rating? ("★ "+p.rating.toFixed(1)+(p.ratingCount?(" ("+p.ratingCount+")"):"")) : "no rating yet";
     $("rRating").textContent=rt;
-    var bits=[]; if(p.km!=null) bits.push(p.km<1?Math.round(p.km*1000)+" m away":p.km.toFixed(1)+" km away"); if(p.address) bits.push(p.address);
+    var bits=[]; if(p.km!=null) bits.push(milesAway(p.km)); if(p.address) bits.push(p.address);
     $("rAddr").textContent=bits.join(" · ");
     var maps = p.mapsUri || ("https://www.google.com/maps/search/"+encodeURIComponent(p.name+" "+(p.address||"")));
     $("mapsLink").href=maps;
