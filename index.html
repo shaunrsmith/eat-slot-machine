@@ -247,7 +247,12 @@
       reelsEl.appendChild(wrap);
       var obj={reel:reel,kind:reel.kind,strip:wrap.querySelector(".strip"),
                lock:wrap.querySelector(".lock"),sel:wrap.querySelector("select")};
-      if(obj.lock){ obj.lock.addEventListener("change",function(){obj.sel.disabled=!obj.lock.checked;}); }
+      if(obj.lock){ obj.lock.addEventListener("change",function(){
+        obj.sel.disabled=!obj.lock.checked;
+        // A lock can be flipped before the first spin, when the dropdown is
+        // still empty. Pull the pool now so it has options to pin.
+        if(obj.lock.checked && !hasLockOptions(obj.sel)) ensureLockOptions();
+      }); }
       reelObjs.push(obj);
     });
     cuisineSel=reelObjs[1].sel; lockCuisine=reelObjs[1].lock;
@@ -386,6 +391,25 @@
     });
   }
 
+  // The popularity pool above tops out at 20 spots, so a locked cuisine often
+  // has only one or two matches in it. This runs a cuisine-targeted text search
+  // so the lock draws from the full set of matching restaurants nearby.
+  function fetchByText(center, radiusM, query){
+    return ensureMaps().then(function(g){
+      var req={
+        textQuery: query,
+        fields:["displayName","location","priceLevel","primaryType","primaryTypeDisplayName","rating","userRatingCount","formattedAddress","googleMapsURI","websiteURI","types"],
+        locationBias:{center:{lat:center.lat,lng:center.lng}, radius:radiusM},
+        includedType:"restaurant",
+        maxResultCount:20,
+        language:"en-US"
+      };
+      return g.Place.searchByText(req).then(function(r){
+        return (r.places||[]).map(function(p){return normalize(p, center);});
+      });
+    });
+  }
+
   // ---------- location ----------
   var sessionCenter=null;
   function geolocate(){
@@ -446,6 +470,24 @@
     sel.innerHTML=vals.map(function(v){return '<option>'+esc(v)+'</option>';}).join("") || '<option disabled>none nearby</option>';
     if(vals.indexOf(cur)>=0) sel.value=cur;
   }
+  // A select counts as "loaded" only once it holds at least one real,
+  // selectable option — the placeholder "none nearby" entry is disabled.
+  function hasLockOptions(sel){
+    return sel.options.length>0 && !sel.options[0].disabled;
+  }
+  // Populate the cuisine/price dropdowns on demand so a lock flipped before
+  // the first spin still has something to pin. Reuses the cached pool when
+  // present and otherwise kicks off a fetch, de-duping concurrent flips.
+  var lockOptionsLoading=false;
+  function ensureLockOptions(){
+    if(pool){ refreshLockOptions(pool); return; }
+    if(lockOptionsLoading) return;
+    lockOptionsLoading=true;
+    [cuisineSel, priceSel].forEach(function(sel){
+      if(!hasLockOptions(sel)) sel.innerHTML='<option disabled selected>loading…</option>';
+    });
+    getPool(false).catch(handleError).then(function(){ lockOptionsLoading=false; });
+  }
 
   // ---------- spin ----------
   var spinning=false;
@@ -453,18 +495,31 @@
     if(spinning) return;
     spinning=true; spinBtn.disabled=true; hideResult();
     getPool(false).then(function(r){
-      var list=r.pool, center=r.center;
-      if(!list.length){ spinning=false;spinBtn.disabled=false; return; }
-      var filtered=list.slice();
-      if(lockCuisine.checked&&!cuisineSel.disabled) filtered=filtered.filter(function(p){return p.cuisine===cuisineSel.value;});
-      if(lockPrice.checked&&!priceSel.disabled)     filtered=filtered.filter(function(p){return p.priceStr===priceSel.value;});
-      if(!filtered.length){
-        setStatus("No "+lockSummary()+" spots nearby — loosen a lock or widen the search.", true);
-        spinning=false;spinBtn.disabled=false; return;
-      }
-      var pick=pickResult(filtered);
-      animateTo(pick, filtered.length>2?filtered:list).then(function(){
-        showResult(pick, center); spinning=false; spinBtn.disabled=false;
+      var center=r.center;
+      if(!r.pool.length){ spinning=false;spinBtn.disabled=false; return; }
+      var wantCuisine = (lockCuisine.checked && !cuisineSel.disabled) ? cuisineSel.value : null;
+      // With a cuisine locked, fetch that cuisine directly instead of sieving
+      // the tiny popularity pool. The text search already constrains cuisine,
+      // so we trust its results and skip the exact-string cuisine filter.
+      var poolPromise = wantCuisine
+        ? fetchByText(center, Number(state.radius), wantCuisine+" restaurant").then(function(cl){
+            var within=cl.filter(function(p){ return p.km==null || p.km*1000 <= Number(state.radius)*1.15; });
+            return within.length ? {list:within, cuisineDone:true}
+                                 : {list:r.pool, cuisineDone:false};
+          }).catch(function(){ return {list:r.pool, cuisineDone:false}; })
+        : Promise.resolve({list:r.pool, cuisineDone:false});
+      return poolPromise.then(function(pr){
+        var list=pr.list, filtered=list.slice();
+        if(wantCuisine && !pr.cuisineDone) filtered=filtered.filter(function(p){return p.cuisine===cuisineSel.value;});
+        if(lockPrice.checked&&!priceSel.disabled) filtered=filtered.filter(function(p){return p.priceStr===priceSel.value;});
+        if(!filtered.length){
+          setStatus("No "+lockSummary()+" spots nearby — loosen a lock or widen the search.", true);
+          spinning=false;spinBtn.disabled=false; return;
+        }
+        var pick=pickResult(filtered);
+        animateTo(pick, filtered.length>2?filtered:list).then(function(){
+          showResult(pick, center); spinning=false; spinBtn.disabled=false;
+        });
       });
     }).catch(function(e){
       handleError(e); spinning=false; spinBtn.disabled=false;
