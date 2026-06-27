@@ -105,20 +105,6 @@
 
   footer{opacity:.45;font-size:.78rem;margin-top:26px;text-align:center}
 
-  /* ---- setup overlay ---- */
-  .overlay{position:fixed;inset:0;background:rgba(8,4,16,.82);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}
-  .overlay.show{display:flex}
-  .card{background:#211036;border:2px solid var(--gold);border-radius:18px;max-width:440px;width:100%;padding:22px}
-  .card h3{margin:0 0 6px}
-  .card p{font-size:.88rem;opacity:.85;line-height:1.45}
-  .card ol{font-size:.84rem;opacity:.85;line-height:1.5;padding-left:1.1em}
-  .card input{width:100%;padding:11px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:#0d0717;color:var(--paper);font-size:.9rem;margin:10px 0}
-  .card a{color:var(--gold)}
-  .card .row{display:flex;gap:8px;margin-top:6px}
-  .card .row button{flex:1;padding:11px;border-radius:10px;border:none;font-weight:700;cursor:pointer}
-  .card .row button.primary{background:var(--gold);color:#3a1500}
-  .card .row button.ghost{background:transparent;color:#bbb;border:1px solid rgba(255,255,255,.2)}
-  .card .err{color:var(--red);font-size:.82rem;min-height:1em}
 </style>
 </head>
 <body>
@@ -137,7 +123,6 @@
       <option value="8047">5 mi</option>
       <option value="16093">10 mi</option>
     </select>
-    <button class="gear" id="gearBtn" title="Settings">⚙︎</button>
   </div>
 
   <div class="machine">
@@ -162,40 +147,15 @@
 
   <footer>Real data from Google Places · settles the “I don't care, you pick” dinner argument 🥡</footer>
 
-  <!-- API key setup -->
-  <div class="overlay" id="setup">
-    <div class="card">
-      <h3>🔑 One-time setup</h3>
-      <p>This app reads live restaurants from <b>Google Places</b>. Paste a Google Maps API key — it's stored only in <b>this browser</b> (never uploaded).</p>
-      <input id="keyInput" placeholder="AIza… your Google Maps API key" autocomplete="off" spellcheck="false" />
-      <div class="err" id="keyErr"></div>
-      <div class="row">
-        <button class="primary" id="keySave">Save &amp; start</button>
-        <button class="ghost" id="keyClose">Close</button>
-      </div>
-      <details style="margin-top:12px">
-        <summary style="cursor:pointer;font-size:.85rem">How do I get a key? (5 min, free)</summary>
-        <ol>
-          <li>Go to <a href="https://console.cloud.google.com/google/maps-apis/start" target="_blank" rel="noopener">Google Maps Platform</a> and create/select a project.</li>
-          <li>Enable these APIs: <b>Maps JavaScript API</b>, <b>Places API (New)</b>, <b>Geocoding API</b>.</li>
-          <li>Credentials → <b>Create credentials → API key</b>.</li>
-          <li>Restrict it: <b>Application restrictions → Websites</b>, add <code>https://shaunrsmith.github.io/*</code> (and <code>http://localhost/*</code> for local testing).</li>
-          <li>Paste it above. Personal use stays within Google's free monthly tier.</li>
-        </ol>
-      </details>
-    </div>
-  </div>
-
 <script>
 (function(){
   "use strict";
 
   // ---------- config / state ----------
-  // Shared default key so anyone can use the app without setup. It is referrer-
-  // locked to this site in the Google console, so it only works from here.
-  // A key a visitor enters via ⚙︎ (saved in their own browser) still wins.
-  var HARDCODED_KEY = "AIzaSyDuMLBU95qUJ9UX5L8Pn3TkhI5GS0fnE4g";
-  var LS = {key:"eatSlot.key", mode:"eatSlot.mode", place:"eatSlot.place", radius:"eatSlot.radius"};
+  // Built-in Google Maps key. It is referrer-locked in the Google console to
+  // this site's domain, so it only works when the app is served from here.
+  var API_KEY = "AIzaSyDuMLBU95qUJ9UX5L8Pn3TkhI5GS0fnE4g";
+  var LS = {mode:"eatSlot.mode", place:"eatSlot.place", radius:"eatSlot.radius"};
   var ALLOWED_RADIUS = ["1609","3219","8047","16093"];
   var storedRadius = localStorage.getItem(LS.radius);
   var state = {
@@ -203,13 +163,12 @@
     radius: ALLOWED_RADIUS.indexOf(storedRadius)>=0 ? storedRadius : "3219"
   };
 
-  function resolveKey(){ return (localStorage.getItem(LS.key) || HARDCODED_KEY || "").trim(); }
+  function resolveKey(){ return API_KEY; }
 
   // ---------- elements ----------
   var $ = function(id){ return document.getElementById(id); };
   var statusEl=$("status"), resultEl=$("result"), spinBtn=$("spinBtn");
   var placeInput=$("placeInput"), radiusSel=$("radius");
-  var setupEl=$("setup"), keyInput=$("keyInput"), keyErr=$("keyErr");
 
   radiusSel.value = state.radius;
   placeInput.value = localStorage.getItem(LS.place) || "";
@@ -334,11 +293,10 @@
     });
     return mapsReady;
   }
-  // Google calls this on auth errors (bad/over-quota key)
+  // Google calls this on auth errors (rejected / over-quota key)
   window.gm_authFailure=function(){
     mapsReady=null;
-    setStatus("That API key was rejected by Google — check it's valid and the right APIs are enabled.", true);
-    openSetup("Key rejected. Double-check Maps JavaScript API, Places API (New) & Geocoding API are enabled, and the key allows this site.");
+    setStatus("Google rejected the request — the app may be over its daily quota. Try again later.", true);
   };
 
   // ---------- data ----------
@@ -454,7 +412,6 @@
   var spinning=false;
   function spin(){
     if(spinning) return;
-    if(!resolveKey()){ openSetup(); return; }
     spinning=true; spinBtn.disabled=true; hideResult();
     getPool(false).then(function(r){
       var list=r.pool, center=r.center;
@@ -498,21 +455,8 @@
   // ---------- status / errors ----------
   function setStatus(msg, isErr){ statusEl.textContent=msg||""; statusEl.classList.toggle("err",!!isErr); }
   function handleError(e){
-    if(e&&e.message==="NO_KEY"){ openSetup(); return; }
     setStatus((e&&e.message)||"Something went wrong.", true);
   }
-
-  // ---------- setup overlay ----------
-  function openSetup(errMsg){ keyInput.value=localStorage.getItem(LS.key)||""; keyErr.textContent=errMsg||""; setupEl.classList.add("show"); keyInput.focus(); }
-  function closeSetup(){ setupEl.classList.remove("show"); }
-  $("gearBtn").addEventListener("click",function(){openSetup();});
-  $("keyClose").addEventListener("click",closeSetup);
-  $("keySave").addEventListener("click",function(){
-    var k=(keyInput.value||"").trim();
-    if(!k){ keyErr.textContent="Paste a key first."; return; }
-    localStorage.setItem(LS.key,k); mapsReady=null; pool=null; poolKey=null; sessionCenter=null;
-    closeSetup(); setStatus("Key saved. Hit Spin!");
-  });
 
   // ---------- controls wiring ----------
   document.querySelectorAll("#modeSeg button").forEach(function(btn){
@@ -541,8 +485,7 @@
 
   // ---------- boot ----------
   buildReels();
-  if(!resolveKey()){ openSetup(); setStatus("Add your Google Maps key to begin →"); }
-  else setStatus("Ready — pick Near me or a place, then Spin.");
+  setStatus("Ready — pick Near me or a place, then Spin.");
 })();
 </script>
 </body>
